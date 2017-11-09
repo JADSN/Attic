@@ -1,0 +1,9 @@
+
+sudo modprobe iio
+sudo modprobe i2c-dev
+sudo modprobe iio-trig-sysfs
+sudo modprobe iio-hwmon
+sudo modprobe hid-sensor-iio-common
+sudo modprobe iio_dummy
+
+sudo rmmod iio i2c-dev iio-trig-sysfs iio-hwmon hid-sensor-iio-common iio_dummy

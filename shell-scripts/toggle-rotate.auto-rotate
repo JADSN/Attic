@@ -1,0 +1,57 @@
+#!/bin/bash
+#
+
+MODEL="Lenovo Yoga 510"
+DEBUG=false # DEBUG=true or DEBUG=false
+X_FILE=/sys/bus/iio/devices/iio:device0/in_accel_x_raw
+Y_FILE=/sys/bus/iio/devices/iio:device0/in_accel_y_raw
+Z_FILE=/sys/bus/iio/devices/iio:device0/in_accel_z_raw
+
+while true
+do
+
+    if [ -f $X_FILE -a -f $Y_FILE -a -f $Z_FILE ];then
+        X_AXIS=$(cat $X_FILE)
+        Y_AXIS=$(cat $Y_FILE)
+        Z_AXIS=$(cat $Z_FILE)
+    else
+        echo "Modules seems not loaded. To activate:"
+        echo "To activate:"
+        echo "sudo modprobe iio-hwmon"
+        echo "sudo modprobe hid-sensor-iio-common"
+        echo "sudo modprobe iio_dummy"
+        echo "If not, sorry this is WIP..."
+        exit 1
+    fi
+    
+    $DEBUG && echo "X: $X_AXIS, Y: $Y_AXIS, Z: $Z_AXIS"
+
+    if [ $X_AXIS -gt 80 -a  $X_AXIS -lt 110 ];then
+        ORIENTATION="right-up"
+    elif [ $X_AXIS -gt 150 -a  $X_AXIS -lt 190 ];then
+        ORIENTATION="left-up"
+    else
+        if [ $Y_AXIS -gt 10 -a  $Y_AXIS -lt 120 ];then
+            ORIENTATION="normal"
+        else
+            ORIENTATION="bottom-up"
+        fi
+    
+    fi
+    
+    case "$ORIENTATION" in
+    	right-up)
+    		xrandr --output eDP1 --rotate right && gsettings set com.canonical.Unity.Launcher launcher-position Bottom
+    	;;
+    	left-up)
+    		xrandr --output eDP1 --rotate left && gsettings set com.canonical.Unity.Launcher launcher-position Bottom
+    	;;
+    	bottom-up)
+    		xrandr --output eDP1 --rotate inverted && gsettings set com.canonical.Unity.Launcher launcher-position Left
+    	;;
+    	normal)
+    		xrandr --output eDP1 --rotate normal && gsettings set com.canonical.Unity.Launcher launcher-position Left
+    	;;
+    esac
+    sleep 1
+done 

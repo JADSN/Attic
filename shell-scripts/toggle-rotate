@@ -1,0 +1,51 @@
+#!/bin/bash
+#
+
+MODEL="Lenovo Yoga 510"
+DEBUG=false # DEBUG=true or DEBUG=false
+
+CONF_PATH=$HOME/.config/toggle-rotate/
+ORIENT_FILE=orientation
+ 
+
+
+[ ! -d $CONF_PATH ] && mkdir -p $CONF_PATH
+
+if [ "X$1" == "X" ];then
+    if [ -f $ORIENT_FILE ];then
+    [ "$DEBUG" == "true" ] && echo "no arg - get file"
+        ORIENTATION=$(cat ${ORIENT_FILE})
+    else
+    [ "$DEBUG" == "true" ] && echo "no arg - no file"
+        ORIENTATION="normal"
+    fi
+else
+    [ "$DEBUG" == "true" ] && echo "with arg - $1"
+    ORIENTATION=$1
+fi
+
+  #      ORIENTATION="left-up"
+  #      ORIENTATION="right-up"
+  #      ORIENTATION="normal"
+  #      ORIENTATION="bottom-up"
+    
+    
+    case "$ORIENTATION" in
+        right)
+    		xrandr --output eDP-1 --rotate right && gsettings set com.canonical.Unity.Launcher launcher-position Bottom
+
+    	;;
+    	left)
+    		xrandr --output eDP-1 --rotate left && gsettings set com.canonical.Unity.Launcher launcher-position Bottom
+    	;;
+    	bottom)
+    		xrandr --output eDP-1 --rotate inverted && gsettings set com.canonical.Unity.Launcher launcher-position Left
+    	;;
+    	normal)
+    		xrandr --output eDP-1 --rotate normal && gsettings set com.canonical.Unity.Launcher launcher-position Left
+    	;;
+    *)
+        echo "Usage: $0 [ normal | right | left | bottom ]"
+    esac
+    echo "$ORIENTATION" > ${CONF_PATH}${ORIENT_FILE}
+    sleep 1
